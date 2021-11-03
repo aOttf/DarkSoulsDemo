@@ -4,7 +4,6 @@ using UnityEngine;
 
 public class FSMOnEnterAndExit : StateMachineBehaviour
 {
-
     public string[] OnEnterMsgs;
     public string[] OnExitMsgs;
     public string[] OnUpdateMsgs;
@@ -21,7 +20,6 @@ public class FSMOnEnterAndExit : StateMachineBehaviour
     // OnStateExit is called when a transition ends and the state machine finishes evaluating this state
     override public void OnStateExit(Animator animator, AnimatorStateInfo stateInfo, int layerIndex)
     {
-
         foreach (var msg in OnExitMsgs)
         {
             animator.SendMessageUpwards(msg);
@@ -36,5 +34,3 @@ public class FSMOnEnterAndExit : StateMachineBehaviour
         }
     }
 }
-
-

@@ -45,10 +45,10 @@ public class ActorController : MonoBehaviour
     [Header("========= Flags ==================")]
     private bool lockPlanar;    //flag variable for locking the moving vector
 
-    private bool isRoll;
-    private bool isJump;
-    private bool isBack;
-    private bool isAttack;
+    public bool isRoll;
+    public bool isJump;
+    public bool isBack;
+    public bool isAttack;
 
     private bool rollRdy = true;
     private bool jumpRdy = true;   //flag variable for jump colddown
@@ -64,6 +64,11 @@ public class ActorController : MonoBehaviour
         pi = GetComponent<PlayerInput>();
         anim = model.GetComponent<Animator>();
         rg = GetComponent<Rigidbody>();
+    }
+
+    private void Start()
+    {
+        anim.SetLayerWeight(anim.GetLayerIndex("Attack"), 0f);
     }
 
     // Update is called once per frame
@@ -236,37 +241,59 @@ public class ActorController : MonoBehaviour
 
     //-------------------------------------------Message Functions to Control Input--------------------------//
 
-    private void SetInputBlock(bool value) => pi.isLocked = !value;
-
     private void SetMoveLock(bool value) => lockPlanar = value;
 
     public void OnGroundEnter()
     {
-        SetInputBlock(false);
+        anim.SetLayerWeight(anim.GetLayerIndex("Attack"), 0f);
+        pi.SetAllSignalsActive(true);
         SetMoveLock(false);
         cap.material = frictionOne;
     }
 
-    public void OnGroundExit()
+    public void OnMoveEnter()
     {
-        SetInputBlock(true);
+        pi.SetAllSignalsActive(false);
         SetMoveLock(true);
         cap.material = frictionZero;
     }
 
-    public void OnAttack1HandEnter()
+    public void OnAttackEnter()
     {
-        anim.SetLayerWeight(anim.GetLayerIndex("Attack"), 1.0f);
-        SetInputBlock(true);
+        anim.SetLayerWeight(anim.GetLayerIndex("Attack"), 1f);
+        pi.SetMoveSignalsActive(false);
+        pi.SetAttackSignalsActive(true);
         SetMoveLock(false);
     }
 
-    public void OnAttackIdleEnter()
-    {
-        anim.SetLayerWeight(anim.GetLayerIndex("Attack"), 0f);
-        SetInputBlock(false);
-        SetMoveLock(false);
-    }
+    //public void OnGroundExit()
+    //{
+    //    SetInputBlock(true);
+    //    SetMoveLock(true);
+    //    cap.material = frictionZero;
+    //    print("Finally I exited.");
+    //    print(Time.time);
+    //}
+
+    //public void OnAttack1HandEnter()
+    //{
+    //    anim.SetLayerWeight(anim.GetLayerIndex("Attack"), 1.0f);
+    //    SetInputBlock(true);
+    //    SetMoveLock(false);
+    //}
+
+    //public void OnAttack1HandExit()
+    //{
+    //    anim.SetLayerWeight(anim.GetLayerIndex("Attack"), 0f);
+    //    SetInputBlock(false);
+    //    SetMoveLock(false);
+    //}
+
+    //public void OnAttackIdleEnter()
+    //{
+    //    SetInputBlock(false);
+    //    SetMoveLock(false);
+    //}
 
     /*
      * Check if it is in the current state in the given layer

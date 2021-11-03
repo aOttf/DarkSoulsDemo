@@ -2,28 +2,23 @@ using UnityEngine;
 
 public class PlayerInput : MonoBehaviour
 {
+    private ActorController ac;
+
     [Header("===== Player Movement Key Settings =====")]
     public string keyUp = "w";
 
     public string keyDown = "s";
     public string keyLeft = "a";
     public string keyRight = "d";
-
-    [Header("===== Camera Movement Key Settings ======")]
-    public string keyJUp;
-
-    public string keyJDown;
-    public string keyJLeft;
-    public string keyJRight;
-
-    [Header("===== Ability Key Settings ======")]
     public string keyShift = "leftshift";
-
     public string keySpace;
+
+    [Header("===== Attack Key Settings ======")]
     public string keyMouse0;
+
     public string keyMouse1;
 
-    [Header("===== Intermediate Singals =====")]
+    [Header("===== Move Signals =====")]
     [SerializeField]
     private float Dup = 0f;
 
@@ -31,54 +26,59 @@ public class PlayerInput : MonoBehaviour
     private float Dright = 0f;
 
     [SerializeField]
-    public float DJup = 0f;
+    private float targetDup;
 
     [SerializeField]
-    public float DJright = 0f;
+    private float targetDright;
 
-    [Header("===== Output Signals =====")]
+    [SerializeField]
+    private float velocityDup;
+
+    [SerializeField]
+    private float velocityDright;
+
     public float Mmag;    //Movement magnitude
 
     public Vector3 Dvec;    //Directional vector
 
     public bool runSignal;
     public bool jrbSignal;  //Jump, Roll and BackJump; Triggered by jump key
+
+    [Header("===== Attack Signals =====")]
     public bool attackSignal;
 
-    //trigger once signal
-
-    //double trigger
-
-    [Header("===== Others =====")]
     //Variables for Smoothdamp function
-    private float targetDup;
-
-    private float targetDright;
-    private float velocityDup;
-    private float velocityDright;
-
     public float smoothTime = 1f;
 
-    public bool isLocked = false;
+    [Header("===== Flags for controlling signals lock")]
+    [SerializeField]
+    private bool isMoveLocked = true;
+
+    [SerializeField]
+    public bool isAttackLocked = true;
+
+    public bool IsAllLocked => isMoveLocked && isAttackLocked;
+
+    public void SetAllSignalsActive(bool value) => isAttackLocked = isMoveLocked = !value;
+
+    public void SetMoveSignalsActive(bool value) => isMoveLocked = !value;
+
+    public void SetAttackSignalsActive(bool value) => isAttackLocked = !value;
+
+    private void Awake()
+    {
+        ac = GetComponent<ActorController>();
+    }
 
     // Start is called before the first frame update
     private void Start()
     {
-        print(transform.position);
-        Vector3 tmp = transform.position;
-        tmp += new Vector3(1, 10, 1);
-        print(transform.position);
-        print(tmp);
     }
 
     // Update is called once per frame
     private void Update()
     {
         //Handle Player Inputs
-
-        //Camera Movement Input
-        DJup = Input.GetKey(keyJUp) ? 1 : 0 - (Input.GetKey(keyJDown) ? 1 : 0);
-        DJright = Input.GetKey(keyJRight) ? 1 : 0 - (Input.GetKey(keyJLeft) ? 1 : 0);
 
         //catch movement input
         targetDup = Input.GetKey(keyUp) ? 1 : 0 - (Input.GetKey(keyDown) ? 1 : 0);
@@ -106,10 +106,13 @@ public class PlayerInput : MonoBehaviour
         attackSignal = Input.GetKeyDown(keyMouse0);
 
         //Reset Signals if necessary
-        if (!isLocked)
-            ResetSignals();
+        if (isAttackLocked)
+            ResetAttackSignals();
+        if (isMoveLocked)
+            ResetMovementSignals();
     }
 
+    // =================== Private Methods ================================//
     private Vector2 Square2Circle(Vector2 squarePos)
     {
         //Using Elliptical Grid Mapping to map points in square to a circle
@@ -118,7 +121,7 @@ public class PlayerInput : MonoBehaviour
         return new Vector2(u, v);
     }
 
-    private void ResetSignals()
+    private void ResetMovementSignals()
     {
         //Intermediate Singals Clear
         targetDup = targetDright = 0;
@@ -126,6 +129,11 @@ public class PlayerInput : MonoBehaviour
         //Output Signals Clear
         Mmag = 0;
         Dvec = Vector3.zero;
-        jrbSignal = runSignal = attackSignal = false;
+        jrbSignal = runSignal = false;
+    }
+
+    private void ResetAttackSignals()
+    {
+        attackSignal = false;
     }
 }
