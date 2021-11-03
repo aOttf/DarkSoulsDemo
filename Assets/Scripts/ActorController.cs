@@ -55,8 +55,19 @@ public class ActorController : MonoBehaviour
     private bool backRdy = true;
     private bool attackRdy = true;
 
+    [Header("======= Smoothing Factors ================")]
     [SerializeField]
     private float smoothTurn = 0.07f;
+
+    [SerializeField]
+    private float smoothWeight;
+
+    [Header("======= Animator State Machine Info ========")]
+    private int moveLayerIndex;
+
+    private int attackLayerIndex;
+    private string moveLayerName;
+    private string attackLayerName;
 
     private void Awake()
     {
@@ -69,6 +80,11 @@ public class ActorController : MonoBehaviour
     private void Start()
     {
         anim.SetLayerWeight(anim.GetLayerIndex("Attack"), 0f);
+
+        moveLayerIndex = anim.GetLayerIndex("Move");
+        attackLayerIndex = anim.GetLayerIndex("Attack");
+        moveLayerName = anim.GetLayerName(moveLayerIndex);
+        attackLayerName = anim.GetLayerName(attackLayerIndex);
     }
 
     // Update is called once per frame
@@ -243,9 +259,8 @@ public class ActorController : MonoBehaviour
 
     private void SetMoveLock(bool value) => lockPlanar = value;
 
-    public void OnGroundEnter()
+    public void OnMoveGroundEnter()
     {
-        anim.SetLayerWeight(anim.GetLayerIndex("Attack"), 0f);
         pi.SetAllSignalsActive(true);
         SetMoveLock(false);
         cap.material = frictionOne;
@@ -258,12 +273,46 @@ public class ActorController : MonoBehaviour
         cap.material = frictionZero;
     }
 
+    public void OnAttackIdleEnter()
+    {
+    }
+
+    public void OnAttackIdleUpdate()
+    {
+        float curAttackWeight = Mathf.Lerp(anim.GetLayerWeight(attackLayerIndex), 0f, smoothWeight);
+        anim.SetLayerWeight(attackLayerIndex, curAttackWeight);
+    }
+
     public void OnAttackEnter()
     {
-        anim.SetLayerWeight(anim.GetLayerIndex("Attack"), 1f);
         pi.SetMoveSignalsActive(false);
         pi.SetAttackSignalsActive(true);
         SetMoveLock(false);
+    }
+
+    public void OnAttack1Update()
+    {
+        float curAttackWeight = Mathf.Lerp(anim.GetLayerWeight(attackLayerIndex), 1f, smoothWeight);
+        anim.SetLayerWeight(attackLayerIndex, curAttackWeight);
+    }
+
+    public void OnAttackExit()
+    {
+        if (IsState("Attack.Idle", "Attack"))
+            OnMoveGroundEnter();
+    }
+
+    //====================== Check Current Animation and Transition Info ==========================//
+    private bool IsTransition(string transitionName, string layerName = "Move")
+    {
+        int layerIndex = anim.GetLayerIndex(layerName);
+        return anim.GetAnimatorTransitionInfo(layerIndex).IsUserName(transitionName);
+    }
+
+    private bool IsState(string stateName, string layerName = "Move")
+    {
+        int layerIndex = anim.GetLayerIndex(layerName);
+        return anim.GetCurrentAnimatorStateInfo(layerIndex).IsName(stateName);
     }
 
     //public void OnGroundExit()
@@ -298,10 +347,4 @@ public class ActorController : MonoBehaviour
     /*
      * Check if it is in the current state in the given layer
      */
-
-    private bool IsState(string stateName, string layerName = "Base Layer")
-    {
-        int layerIndex = anim.GetLayerIndex(layerName);
-        return anim.GetCurrentAnimatorStateInfo(layerIndex).IsName(stateName);
-    }
 }

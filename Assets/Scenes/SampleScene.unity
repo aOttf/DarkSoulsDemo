@@ -220,6 +220,7 @@ MonoBehaviour:
   isBack: 0
   isAttack: 0
   smoothTurn: 0.2
+  smoothWeight: 0.07
 --- !u!54 &232717016
 Rigidbody:
   m_ObjectHideFlags: 0
