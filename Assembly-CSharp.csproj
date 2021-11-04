@@ -53,12 +53,14 @@
     <UnityVersion>2020.3.17f1</UnityVersion>
   </PropertyGroup>
   <ItemGroup>
-    <Compile Include="Assets\Scripts\FSMOnEnterAndExit.cs" />
-    <Compile Include="Assets\Scripts\PlayerInput.cs" />
-    <Compile Include="Assets\Scripts\ActorController.cs" />
-    <Compile Include="Assets\Scripts\FSMClearSignals.cs" />
-    <Compile Include="Assets\Scripts\FSMOnUpdate.cs" />
-    <Compile Include="Assets\Scripts\CameraController.cs" />
+    <Compile Include="Assets\Scripts\FSM\FSMOnEnterAndExit.cs" />
+    <Compile Include="Assets\Scripts\FSM\FSMOnUpdate.cs" />
+    <Compile Include="Assets\Scripts\PlayerControl\PlayerInput.cs" />
+    <Compile Include="Assets\Scripts\PlayerControl\ActorController.cs" />
+    <Compile Include="Assets\Scripts\FSM\FSMClearSignals.cs" />
+    <Compile Include="Assets\Scripts\PlayerControl\CameraController.cs" />
+    <Compile Include="Assets\Scripts\Animator\AnimTriggerController.cs" />
+    <Compile Include="Assets\Scripts\FSM\SetNormalizedTime.cs" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="UnityEngine">
