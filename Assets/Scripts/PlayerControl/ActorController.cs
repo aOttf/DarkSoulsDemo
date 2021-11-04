@@ -14,26 +14,22 @@ public class ActorController : MonoBehaviour
     [Space(10)]
     [Header("========= Physics Materials ==========")]
     public PhysicMaterial frictionOne;
-
     public PhysicMaterial frictionZero;
 
     [Space(10)]
     [Header("========= Moving Speeds ===========")]
     public float walkingSpd = 1.0f;
-
     public float runningSpd = 2.0f;
 
     [Space(10)]
     [Header("========== Impluses =============")]
     public float rollFrc = 10.0f;
-
     public float jumpFrc = 20.0f;
     public float backFrc = 2.0f;
 
     [Space(10)]
     [Header("========== Cooldowns =============")]
     public float rollCold = 3f;
-
     public float jumpCold = 2f;
     public float backCold = 0.5f;
     public float attackCold = 1.2f;
@@ -44,7 +40,6 @@ public class ActorController : MonoBehaviour
 
     [Header("========= Flags ==================")]
     private bool lockPlanar;    //flag variable for locking the moving vector
-
     public bool isRoll;
     public bool isJump;
     public bool isBack;
@@ -64,10 +59,13 @@ public class ActorController : MonoBehaviour
 
     [Header("======= Animator State Machine Info ========")]
     private int moveLayerIndex;
-
     private int attackLayerIndex;
     private string moveLayerName;
     private string attackLayerName;
+
+    // Root Motion Adjust Variables
+    private Vector3 m_deltaP;
+    private Vector3 m_deltaR;
 
     private void Awake()
     {
@@ -137,7 +135,8 @@ public class ActorController : MonoBehaviour
     private void Move()
     {
         //Moving the actor
-        rg.position += Time.fixedDeltaTime * movingVec;
+        rg.position += Time.fixedDeltaTime * movingVec + m_deltaP;
+        m_deltaP = Vector3.zero;
     }
 
     private void JumpBackJumpRoll()
@@ -210,7 +209,6 @@ public class ActorController : MonoBehaviour
     }
 
     //Cooldown for forward jump, backward jump and roll
-
     private IEnumerator cooldownJump()
     {
         yield return new WaitForSeconds(jumpCold);
@@ -302,6 +300,16 @@ public class ActorController : MonoBehaviour
             OnMoveGroundEnter();
     }
 
+    //====================== Callbacks by Root Motion Controller ==========================//
+    public void FollowRM(Vector3 deltaP)
+    {
+        /*
+         * Below Should be applied to Move also in the future.
+         */
+        if (IsState("Attack.Attack1HandC", "Attack"))
+            m_deltaP += deltaP;
+    }
+
     //====================== Check Current Animation and Transition Info ==========================//
     private bool IsTransition(string transitionName, string layerName = "Move")
     {
@@ -314,37 +322,4 @@ public class ActorController : MonoBehaviour
         int layerIndex = anim.GetLayerIndex(layerName);
         return anim.GetCurrentAnimatorStateInfo(layerIndex).IsName(stateName);
     }
-
-    //public void OnGroundExit()
-    //{
-    //    SetInputBlock(true);
-    //    SetMoveLock(true);
-    //    cap.material = frictionZero;
-    //    print("Finally I exited.");
-    //    print(Time.time);
-    //}
-
-    //public void OnAttack1HandEnter()
-    //{
-    //    anim.SetLayerWeight(anim.GetLayerIndex("Attack"), 1.0f);
-    //    SetInputBlock(true);
-    //    SetMoveLock(false);
-    //}
-
-    //public void OnAttack1HandExit()
-    //{
-    //    anim.SetLayerWeight(anim.GetLayerIndex("Attack"), 0f);
-    //    SetInputBlock(false);
-    //    SetMoveLock(false);
-    //}
-
-    //public void OnAttackIdleEnter()
-    //{
-    //    SetInputBlock(false);
-    //    SetMoveLock(false);
-    //}
-
-    /*
-     * Check if it is in the current state in the given layer
-     */
 }
