@@ -1,13 +1,13 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Internal;
 
 public class CameraController : MonoBehaviour
 {
-    [Header("Components")]
     public GameObject playerHandler;
-
     public GameObject model;
+
     public PlayerInput pi;
     public Camera cam;
 
@@ -46,28 +46,32 @@ public class CameraController : MonoBehaviour
     private float curWorldYEuler = 0f;
     private float yEulerRef;
 
-    private float modelYEuler;  //current y value of eularangle of the model in world space
-
     private Vector3 camSpd;   //current speed of camera, used for damp function
     private Vector3 TgtCamPos => transform.position - transform.forward * camDist;
+
+    private Vector3 playerPos;
 
     // Start is called before the first frame update
     private void Start()
     {
+        playerPos = playerHandler.transform.position;
     }
 
     // Update is called once per frame
-    private void Update()
+    private void LateUpdate()
     {
+        //If character just moved in a physical frame, adjust the camera position proportionally
+        AdjustCameraPosition();
+
         //Camera Movement Input
         DJup = Input.GetKey(keyJUp) ? 1 : 0 - (Input.GetKey(keyJDown) ? 1 : 0);
         DJright = Input.GetKey(keyJRight) ? 1 : 0 - (Input.GetKey(keyJLeft) ? 1 : 0);
-    }
 
-    private void FixedUpdate()
-    {
+        //Horizontal Rotation
         RotatePlayerHandler();
+        //Vertical Rotation
         RotateCameraHandler();
+        //Lerp Camera Position
         MoveCamera();
     }
 
@@ -86,17 +90,25 @@ public class CameraController : MonoBehaviour
         cam.transform.eulerAngles = transform.eulerAngles;
     }
 
-    private void RotatePlayerHandler()
+    private void RotatePlayerHandler(float scalar = 1f)
     {
         //Horizontal Rotation
-        tgtWorldYEuler -= DJright * horiSpd * Time.fixedDeltaTime;
+        tgtWorldYEuler -= DJright * horiSpd * Time.deltaTime * scalar;
         curWorldYEuler = Mathf.SmoothDamp(curWorldYEuler, tgtWorldYEuler, ref yEulerRef, smoothHoriFac);
 
         //get current model horizontal orientation
-        modelYEuler = model.transform.eulerAngles.y;
+        Vector3 tmpEuler = model.transform.eulerAngles;
+
         playerHandler.transform.localEulerAngles = new Vector3(0, curWorldYEuler, 0);
+
         //Unmove the face of the model
-        model.transform.eulerAngles = new Vector3(model.transform.eulerAngles.x,
-            modelYEuler, model.transform.eulerAngles.z);
+        model.transform.eulerAngles = tmpEuler;
+    }
+
+    private void AdjustCameraPosition()
+    {
+        Vector3 deltaPos = playerHandler.transform.position - playerPos;
+        playerPos = playerHandler.transform.position;
+        cam.transform.position += deltaPos;
     }
 }

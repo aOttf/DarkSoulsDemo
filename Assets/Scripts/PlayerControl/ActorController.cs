@@ -5,6 +5,7 @@ using UnityEngine;
 public class ActorController : MonoBehaviour
 {
     public GameObject model;
+    public GameObject cameraHandler;
 
     private PlayerInput pi;
     private Animator anim;
@@ -128,8 +129,12 @@ public class ActorController : MonoBehaviour
 
     private void FixedUpdate()
     {
+        //print(cameraHandler.transform.position);
+        print(transform.position);
         Move();
         JumpBackJumpRoll();
+
+        //print(cameraHandler.transform.position);
     }
 
     private void Move()

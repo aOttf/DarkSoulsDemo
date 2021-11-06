@@ -55,12 +55,14 @@
   <ItemGroup>
     <Compile Include="Assets\Scripts\Animator\AnimTriggerController.cs" />
     <Compile Include="Assets\Scripts\FSM\FSMOnEnterAndExit.cs" />
+    <Compile Include="Assets\Scripts\Animator\RootMotionController.cs" />
+    <Compile Include="Assets\test.cs" />
     <Compile Include="Assets\Scripts\PlayerControl\PlayerInput.cs" />
     <Compile Include="Assets\Scripts\PlayerControl\ActorController.cs" />
     <Compile Include="Assets\Scripts\FSM\FSMClearSignals.cs" />
     <Compile Include="Assets\Scripts\PlayerControl\CameraController.cs" />
     <Compile Include="Assets\Scripts\FSM\FSMSetNormalizedTime.cs" />
-    <Compile Include="Assets\Scripts\Animator\RootMotionController.cs" />
+    <Compile Include="Assets\CubeController.cs" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="UnityEngine">
